@@ -9,7 +9,7 @@ analytics_bp = Blueprint('analytics', __name__)
 
 @analytics_bp.route('/analytics')
 @login_required
-@role_required('Judge', 'Admin')
+@role_required('Admin')
 def dashboard():
     # In a real app, this would query a database. 
     # For AskLegal.ai using Redis, we check the query logs (or a mock representation)

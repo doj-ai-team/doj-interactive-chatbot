@@ -141,8 +141,24 @@
                             placeholder="••••••••">
                     </div>
                 </div>
-
-                <!-- Removed explicit role selection logic; all new users default to Citizen for security -->
+                <div class="space-y-1.5">
+                    <label for="role" class="text-sm font-medium text-slate-300">Select Role</label>
+                    <div class="relative">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <i data-lucide="briefcase" class="h-5 w-5 text-slate-400"></i>
+                        </div>
+                        <select name="role" id="role"
+                            class="block w-full pl-10 pr-10 py-3 rounded-xl border border-slate-700 bg-slate-800/50 text-white focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition-all sm:text-sm appearance-none">
+                            <option value="Citizen">Citizen (Default)</option>
+                            <option value="Lawyer">Lawyer</option>
+                            <option value="Judge">Judge</option>
+                            <option value="Admin">System Admin</option>
+                        </select>
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <i data-lucide="chevron-down" class="h-4 w-4 text-slate-400"></i>
+                        </div>
+                    </div>
+                </div>
 
                 <button type="submit"
                     class="w-full flex justify-center py-3 px-4 mt-4 border border-transparent rounded-xl shadow-sm text-sm font-semibold text-white bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 focus:ring-offset-slate-900 transition-all shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50">

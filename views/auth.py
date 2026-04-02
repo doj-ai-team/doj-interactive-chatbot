@@ -52,7 +52,9 @@ def register():
         username = data.get('username')
         email = data.get('email')
         password = data.get('password')
-        role = 'Citizen' # Enforce Citizen role for security; admins must elevate users manually
+        role = data.get('role', 'Citizen')
+        if role not in ['Citizen', 'Lawyer', 'Judge', 'Admin']:
+            role = 'Citizen'
 
         if User.query.filter_by(email=email).first():
             if request.headers.get('Accept') == 'application/json':

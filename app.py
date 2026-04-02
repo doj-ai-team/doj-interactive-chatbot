@@ -387,7 +387,7 @@ def submit_suggestion():
 
 @app.route('/admin/pending', methods=['GET'])
 @login_required
-@role_required('Admin', 'Judge')
+@role_required('Admin')
 def view_pending():
     pending = PendingSubmission.query.filter_by(status='PENDING').all()
     # For now, just return JSON; will integrate into analytics UI later
@@ -401,7 +401,7 @@ def view_pending():
 
 @app.route('/admin/approve/<int:sub_id>', methods=['POST'])
 @login_required
-@role_required('Admin', 'Judge')
+@role_required('Admin')
 def approve_suggestion(sub_id):
     data = request.json
     action = data.get('action') # 'approve' or 'reject'

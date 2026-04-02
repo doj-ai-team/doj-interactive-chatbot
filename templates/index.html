@@ -447,7 +447,7 @@
             <a href="/workflows"><button
                 class="font-medium text-slate-500 hover:text-doj-navy dark:text-slate-400 dark:hover:text-white transition-colors pb-1">Workflows</button></a>
             {% endif %}
-            {% if current_user.is_authenticated and current_user.role in ['Judge', 'Admin'] %}
+            {% if current_user.is_authenticated and current_user.role == 'Admin' %}
             <a href="/analytics"><button
                 class="font-medium text-slate-500 hover:text-doj-navy dark:text-slate-400 dark:hover:text-white transition-colors pb-1"
                 data-i18n="nav_analytics">Analytics</button></a>
