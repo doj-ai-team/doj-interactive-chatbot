@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Department of Justice | Govt. of India - Analytics Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        doj: {
+                            navy: '#000080',
+                            saffron: '#FF9933',
+                            green: '#138808',
+                            light: '#f8fafc',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js for data visualization -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        @keyframes slide-in-top {
+            0% {
+                opacity: 0;
+                transform: translateY(-30px);
+                filter: blur(4px);
+            }
+            100% {
+                opacity: 1;
+                transform: translateY(0);
+                filter: blur(0);
+            }
+        }
+
+        .slide-in-top {
+            animation: slide-in-top 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .slide-in-bottom {
+            animation: slide-in-bottom 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .slide-in-left {
+            animation: slide-in-left 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        .fade-in-1 {
+            animation-delay: 100ms;
+        }
+
+        .fade-in-2 {
+            animation-delay: 200ms;
+        }
+
+        .fade-in-3 {
+            animation-delay: 300ms;
+        }
+    </style>
+    <script>
+        // FOUC prevention
+        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
+</head>
+
+<body
+    class="bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-slate-50 via-white to-slate-100 text-slate-800 min-h-screen relative overflow-x-hidden transition-colors duration-700 dark:from-[#080d1a] dark:via-[#0b1329] dark:to-slate-900 dark:text-slate-200">
+    <div class="flex h-full relative z-0 flex-col">
+
+    <header
+        class="px-6 py-4 flex justify-between items-center bg-white/40 dark:bg-slate-900/40 border-b border-white/20 dark:border-slate-700/30 backdrop-blur-3xl z-40 sticky top-0 shadow-[0_4px_30px_rgba(0,0,0,0.02)] transition-all">
+        <div class="font-bold text-2xl flex items-center space-x-3 text-doj-navy dark:text-white">
+            <span class="text-2xl drop-shadow-md floating">⚖️</span>
+            <span class="tracking-tight">Department of Justice Analytics</span>
+        </div>
+        <div class="flex space-x-6 items-center">
+            <a href="/"><button
+                    class="text-slate-500 hover:text-doj-navy dark:text-slate-400 dark:hover:text-white transition-colors font-medium">Chat</button></a>
+            {% if current_user.is_authenticated and current_user.role in ['Lawyer', 'Judge', 'Admin'] %}
+            <a href="/predict"><button
+                    class="text-slate-500 hover:text-doj-navy dark:text-slate-400 dark:hover:text-white transition-colors font-medium">Predict</button></a>
+            {% endif %}
+            {% if current_user.is_authenticated and current_user.role in ['Lawyer', 'Judge', 'Admin'] %}
+            <a href="/generate"><button
+                    class="text-slate-500 hover:text-doj-navy dark:text-slate-400 dark:hover:text-white transition-colors font-medium">Generate</button></a>
+            {% endif %}
+            {% if current_user.is_authenticated and current_user.role in ['Citizen', 'Lawyer', 'Admin'] %}
+            <a href="/workflows"><button
+                    class="text-slate-500 hover:text-doj-navy dark:text-slate-400 dark:hover:text-white transition-colors font-medium">Workflows</button></a>
+            {% endif %}
+            {% if current_user.is_authenticated and current_user.role in ['Judge', 'Admin'] %}
+            <a href="/analytics"><button
+                    class="font-bold text-doj-navy dark:text-doj-saffron border-b-2 border-doj-navy dark:border-doj-saffron pb-1">Analytics</button></a>
+            {% endif %}
+
+            <!-- Theme Toggle -->
+            <button id="theme-toggle"
+                class="p-2 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:text-white hover:shadow-inner transition-colors">
+                <i data-lucide="moon" id="theme-icon-moon" class="w-4 h-4 dark:hidden"></i>
+                <i data-lucide="sun" id="theme-icon-sun" class="w-4 h-4 hidden dark:block"></i>
+            </button>
+
+            <!-- Auth Controls -->
+            {% if current_user.is_authenticated %}
+            <div class="relative group ml-4 border-l border-slate-300 dark:border-slate-700 pl-4">
+                <button
+                    class="flex items-center space-x-2 text-sm font-semibold text-slate-700 dark:text-slate-200 hover:text-doj-navy dark:hover:text-white transition-colors">
+                    <div
+                        class="w-8 h-8 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white shadow-md">
+                        {{ current_user.username[0] | upper }}
+                    </div>
+                    <span>{{ current_user.username }}</span>
+                    <span
+                        class="text-xs bg-slate-200 dark:bg-slate-700 px-2 py-0.5 rounded-md text-slate-600 dark:text-slate-400">{{
+                        current_user.role }}</span>
+                    <i data-lucide="chevron-down" class="w-3 h-3 ml-1 text-slate-400"></i>
+                </button>
+                <div class="absolute right-0 top-full w-48 hidden group-hover:block pt-2 z-50">
+                    <div
+                        class="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg overflow-hidden">
+                        <a href="{{ url_for('auth.logout') }}"
+                            class="flex items-center px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-slate-50 dark:hover:bg-slate-700/50 transition-colors">
+                            <i data-lucide="log-out" class="w-4 h-4 mr-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <div class="ml-4 flex items-center space-x-3 border-l border-slate-300 dark:border-slate-700 pl-4">
+                <a href="{{ url_for('auth.login') }}"
+                    class="text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-doj-navy dark:hover:text-white transition-colors">Log
+                    in</a>
+                <a href="{{ url_for('auth.register') }}"
+                    class="text-sm font-semibold bg-doj-navy dark:bg-indigo-600 text-white px-4 py-1.5 rounded-lg hover:bg-blue-800 dark:hover:bg-indigo-700 transition-colors shadow-sm">Sign
+                    up</a>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Login Gate Modal for RBAC Simulation -->
+    <div id="loginGate"
+        class="fixed inset-0 bg-slate-100/80 dark:bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center">
+        <div
+            class="bg-white/60 dark:bg-slate-800/40 backdrop-blur-3xl p-10 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/50 dark:border-slate-700/40 max-w-sm w-full transform transition-all">
+            <div class="text-center mb-8">
+                <div
+                    class="inline-flex items-center justify-center w-16 h-16 bg-slate-100 dark:bg-white/10 rounded-2xl mb-6 shadow-inner border border-slate-200 dark:border-white/10">
+                    <i data-lucide="shield-check" class="text-doj-saffron w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-bold text-doj-navy dark:text-white tracking-tight">Admin Authentication</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">Restricted DOJ Administrator Access Only</p>
+            </div>
+            <div>
+                <label class="block text-sm font-semibold text-slate-600 dark:text-slate-300 mb-2">Admin
+                    Passcode</label>
+                <input type="password" id="adminPass"
+                    class="w-full px-5 py-3 bg-slate-100/50 dark:bg-slate-900/50 border border-slate-200 dark:border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-doj-saffron text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 transition-all font-medium"
+                    placeholder="Enter password (hint: admin)" />
+            </div>
+            <button onclick="checkAuth()"
+                class="w-full bg-doj-navy dark:bg-doj-saffron hover:bg-slate-800 dark:hover:bg-orange-600 text-white font-bold py-3.5 px-4 rounded-xl mt-8 shadow-md dark:shadow-lg shadow-doj-navy/30 dark:shadow-doj-saffron/30 hover:shadow-doj-navy/50 dark:hover:shadow-doj-saffron/50 hover:-translate-y-0.5 transition-all">
+                Verify Identity
+            </button>
+            <p id="authError" class="text-rose-500 dark:text-rose-400 text-sm font-semibold mt-4 text-center hidden"><i
+                    data-lucide="alert-circle" class="inline w-4 h-4 mr-1"></i> Access Denied. Invalid Passcode.</p>
+        </div>
+    </div>
+
+    <main id="adminContent" class="p-8 max-w-7xl mx-auto hidden space-y-8 relative z-10 ">
+
+        <div class="text-center mb-10">
+            <h1 class="text-4xl font-extrabold mb-3 text-doj-navy dark:text-white tracking-tight">
+                Policy Insights & Query Trends</h1>
+            <p class="text-slate-500 dark:text-slate-400 text-lg font-medium">Data-driven governance overview based on
+                citizen queries.</p>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div
+                class="bg-white/60 dark:bg-slate-800/40 backdrop-blur-3xl p-8 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/50 dark:border-slate-700/40 flex flex-col items-center justify-center hover:-translate-y-1 hover:border-doj-saffron/50 hover:shadow-xl hover:ring-1 hover:ring-doj-saffron/30 transition-all duration-300 group ">
+                <div
+                    class="w-14 h-14 rounded-full bg-slate-50 dark:bg-white/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                    <i data-lucide="users" class="text-slate-800 dark:text-white w-7 h-7"></i>
+                </div>
+                <h3 class="text-slate-500 dark:text-slate-300 text-sm font-bold uppercase tracking-widest mb-2">Total
+                    Queries (30 Days)</h3>
+                <p class="text-5xl font-black text-doj-navy dark:text-white tracking-tighter mb-4">14,289</p>
+                <p
+                    class="text-doj-saffron text-sm font-bold bg-doj-saffron/10 px-4 py-1.5 rounded-full flex items-center">
+                    <i data-lucide="trending-up" class="w-4 h-4 mr-1.5"></i> 12% from last month
+                </p>
+            </div>
+
+            <div
+                class="bg-white/60 dark:bg-slate-800/40 backdrop-blur-3xl p-8 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/50 dark:border-slate-700/40 flex flex-col items-center justify-center hover:-translate-y-1 hover:border-doj-green/50 hover:shadow-xl hover:ring-1 hover:ring-doj-saffron/30 transition-all duration-300 group ">
+                <div
+                    class="w-14 h-14 rounded-full bg-slate-50 dark:bg-white/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                    <i data-lucide="clock" class="text-slate-800 dark:text-white w-7 h-7"></i>
+                </div>
+                <h3 class="text-slate-500 dark:text-slate-300 text-sm font-bold uppercase tracking-widest mb-2">Avg
+                    Response Time</h3>
+                <p class="text-5xl font-black text-doj-navy dark:text-white tracking-tighter mb-4">1.8s</p>
+                <p class="text-doj-green text-sm font-bold bg-doj-green/10 px-4 py-1.5 rounded-full flex items-center">
+                    <i data-lucide="check-circle" class="w-4 h-4 mr-1.5"></i> Targets met ( &lt; 3.0s )
+                </p>
+            </div>
+
+            <div
+                class="bg-white/60 dark:bg-slate-800/40 backdrop-blur-3xl p-8 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/50 dark:border-slate-700/40 flex flex-col items-center justify-center hover:-translate-y-1 hover:border-blue-400/50 hover:shadow-xl hover:ring-1 hover:ring-doj-saffron/30 transition-all duration-300 group ">
+                <div
+                    class="w-14 h-14 rounded-full bg-slate-50 dark:bg-white/10 flex items-center justify-center mb-5 group-hover:scale-110 transition-transform">
+                    <i data-lucide="file-lock-2" class="text-slate-800 dark:text-white w-7 h-7"></i>
+                </div>
+                <h3 class="text-slate-500 dark:text-slate-300 text-sm font-bold uppercase tracking-widest mb-2">Document
+                    Extractions</h3>
+                <p class="text-5xl font-black text-doj-navy dark:text-white tracking-tighter mb-4">3,492</p>
+                <p
+                    class="text-blue-500 dark:text-blue-400 text-sm font-bold bg-blue-500/10 dark:bg-blue-400/10 px-4 py-1.5 rounded-full flex items-center">
+                    <i data-lucide="shield" class="w-4 h-4 mr-1.5"></i> 100% securely auto-deleted
+                </p>
+            </div>
+        </div>
+
+        <!-- Pending Approvals Section (Learning Loop) -->
+        <div id="pendingSection" class="bg-white/60 dark:bg-slate-800/40 backdrop-blur-3xl p-8 rounded-[2.5rem] shadow-[0_8px_30px_rgb(0,0,0,0.06)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.2)] border border-white/50 dark:border-slate-700/40 mt-10">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-doj-navy dark:text-white flex items-center">
+                    <i data-lucide="verified" class="mr-3 text-doj-saffron w-6 h-6"></i> Pending Knowledge Approvals
+                </h2>
+                <span id="pendingCount" class="bg-doj-saffron/10 text-doj-saffron px-3 py-1 rounded-full text-xs font-bold">0 Pending</span>
+            </div>
+            
+            <div id="pendingList" class="space-y-4">
+                <div class="text-center py-10 text-slate-400">
+                    <i data-lucide="loader" class="w-8 h-8 mx-auto animate-spin mb-3"></i>
+                    <p>Fetching pending submissions...</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        function checkAuth() {
+            const pass = document.getElementById("adminPass").value;
+            if (pass === "admin") {
+                document.getElementById("loginGate").classList.add("hidden");
+                document.getElementById("adminContent").classList.remove("hidden");
+            } else {
+                document.getElementById("authError").classList.remove("hidden");
+            }
+        }
+
+        // ----------------------------------------
+        // Dark Mode Toggle Logic & Chart Re-rendering
+        // ----------------------------------------
+        const themeToggleBtn = document.getElementById('theme-toggle');
+        const htmlElement = document.documentElement;
+
+        function updateChartColors() {
+            const isDark = htmlElement.classList.contains('dark');
+            Chart.defaults.color = isDark ? '#e2e8f0' : '#475569';
+            for (let id in Chart.instances) {
+                Chart.instances[id].update();
+            }
+        }
+
+        themeToggleBtn.addEventListener('click', function () {
+            if (htmlElement.classList.contains('dark')) {
+                htmlElement.classList.remove('dark');
+                localStorage.setItem('color-theme', 'light');
+            } else {
+                htmlElement.classList.add('dark');
+                localStorage.setItem('color-theme', 'dark');
+            }
+            updateChartColors();
+        });
+
+        // Initialize chart defaults based on current theme
+        const isDark = htmlElement.classList.contains('dark');
+        Chart.defaults.color = isDark ? '#e2e8f0' : '#475569';
+        Chart.defaults.font.family = "'Inter', sans-serif";
+
+        // Data injected from Flask
+        const catData = {{ categories | tojson }};
+        const ipcData = {{ top_ipc | tojson }};
+
+        // Initialize Category Chart
+        const catCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(catCtx, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(catData),
+                datasets: [{
+                    data: Object.values(catData),
+                    backgroundColor: ['#f97316', '#15803d', '#3b82f6', '#fcd34d', '#8b5cf6'], // Saffron, Green, Blue, Yellow, Purple
+                    borderWidth: 0,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'bottom', labels: { padding: 20, font: { size: 13, weight: '600' } } }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // Initialize IPC Chart
+        const ctxIpc = document.getElementById('ipcChart').getContext('2d');
+        new Chart(ctxIpc, {
+            type: 'doughnut',
+            data: {
+                labels: Object.keys(ipcData),
+                datasets: [{
+                    data: Object.values(ipcData),
+                    backgroundColor: [
+                        '#15803d', // Green
+                        '#f97316', // Saffron
+                        '#3b82f6', // Blue
+                        '#fcd34d'  // Yellow
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { position: 'right', labels: { padding: 20, font: { size: 13, weight: '600' } } }
+                },
+                cutout: '70%'
+            }
+        });
+
+        // Cross-tab Theme Synchronization
+        window.addEventListener('storage', function (e) {
+            if (e.key === 'color-theme') {
+                if (e.newValue === 'dark') {
+                    document.documentElement.classList.add('dark');
+                } else {
+                    document.documentElement.classList.remove('dark');
+                }
+                // Update charts if function exists
+                if (typeof updateChartColors === 'function') {
+                    updateChartColors();
+                }
+            }
+        });
+
+        // ----------------------------------------
+        // Learning Loop: Pending Approvals Logic
+        // ----------------------------------------
+        async function fetchPending() {
+            const listEl = document.getElementById('pendingList');
+            const countEl = document.getElementById('pendingCount');
+            
+            try {
+                const res = await fetch('/admin/pending');
+                const data = await res.json();
+                
+                countEl.innerText = `${data.length} Pending`;
+                
+                if (data.length === 0) {
+                    listEl.innerHTML = `
+                        <div class="text-center py-10 bg-slate-50 dark:bg-white/5 rounded-2xl border border-dashed border-slate-200 dark:border-white/10">
+                            <i data-lucide="check-circle-2" class="w-10 h-10 mx-auto text-doj-green mb-3"></i>
+                            <p class="text-slate-500 font-medium">All submissions reviewed. No pending tasks!</p>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                    return;
+                }
+                
+                listEl.innerHTML = data.map(sub => `
+                    <div class="bg-slate-50 dark:bg-white/5 p-6 rounded-2xl border border-slate-200 dark:border-white/10 transition-all hover:bg-white dark:hover:bg-white/10 group">
+                        <div class="flex flex-col md:flex-row md:items-start justify-between gap-4">
+                            <div class="flex-1 space-y-3">
+                                <div>
+                                    <span class="text-[10px] font-bold uppercase tracking-widest text-slate-400">Citizen Query</span>
+                                    <p class="text-sm font-bold text-doj-navy dark:text-white mt-1">"${sub.query}"</p>
+                                </div>
+                                <div class="bg-white dark:bg-slate-900/50 p-4 rounded-xl border border-slate-100 dark:border-slate-800 shadow-sm relative">
+                                    <span class="text-[10px] font-bold uppercase tracking-widest text-doj-saffron block mb-1">Suggested Expansion</span>
+                                    <p class="text-sm text-slate-600 dark:text-slate-300 italic">${sub.suggestion}</p>
+                                    ${sub.source ? `<p class="text-[10px] text-slate-400 mt-2 font-semibold">Source: ${sub.source}</p>` : ''}
+                                </div>
+                                <p class="text-[10px] text-slate-400">Timestamp: ${sub.created_at}</p>
+                            </div>
+                            <div class="flex md:flex-col space-x-2 md:space-x-0 md:space-y-2 shrink-0">
+                                <button onclick="handleApproval(${sub.id}, 'approve')" class="flex-1 bg-doj-green text-white px-4 py-2 rounded-lg text-xs font-bold hover:opacity-90 transition-opacity flex items-center justify-center">
+                                    <i data-lucide="check" class="w-3 h-3 mr-2"></i> Approve
+                                </button>
+                                <button onclick="handleApproval(${sub.id}, 'reject')" class="flex-1 border border-rose-500 text-rose-500 hover:bg-rose-500 hover:text-white px-4 py-2 rounded-lg text-xs font-bold transition-all flex items-center justify-center">
+                                    <i data-lucide="x" class="w-3 h-3 mr-2"></i> Reject
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+                lucide.createIcons();
+                
+            } catch (e) {
+                console.error("Failed to fetch pending", e);
+                listEl.innerHTML = '<p class="text-center text-rose-500 font-bold p-10">Failed to load submissions. Please try again.</p>';
+            }
+        }
+
+        async function handleApproval(id, action) {
+            if (action === 'approve' && !confirm("Approve this knowledge into the vector index?")) return;
+            if (action === 'reject' && !confirm("Permanently reject this suggestion?")) return;
+            
+            try {
+                const res = await fetch(`/admin/approve/${id}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ action: action })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert(data.message);
+                    fetchPending();
+                } else {
+                    alert("Error: " + data.error);
+                }
+            } catch (e) {
+                console.error("Action failed", e);
+                alert("Internal Server Error.");
+            }
+        }
+
+        // Call on load
+        fetchPending();
+    </script>
+</body>
+
+</html>

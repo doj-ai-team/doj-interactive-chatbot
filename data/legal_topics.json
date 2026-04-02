@@ -1,0 +1,94 @@
+{
+    "topics": {
+        "Criminal Law": {
+            "subtopics": {
+                "Offences Against Human Body": [
+                    "Culpable Homicide",
+                    "Murder",
+                    "Kidnapping",
+                    "Assault",
+                    "Criminal Force"
+                ],
+                "Offences Against Property": [
+                    "Theft",
+                    "Extortion",
+                    "Robbery",
+                    "Dacoity",
+                    "Criminal Misappropriation",
+                    "Criminal Breach of Trust",
+                    "Cheating",
+                    "Mischief",
+                    "Criminal Trespass"
+                ],
+                "Offences Against Public Tranquility": [
+                    "Unlawful Assembly",
+                    "Rioting",
+                    "Affray"
+                ],
+                "Offences Against State": [
+                    "Waging War",
+                    "Sedition"
+                ],
+                "Cybercrime": [
+                    "Hacking",
+                    "Identity Theft",
+                    "Cyber Fraud",
+                    "Cyber Stalking",
+                    "Child Pornography"
+                ],
+                "Economic Offences": [
+                    "Counterfeiting",
+                    "Money Laundering",
+                    "Financial Fraud"
+                ]
+            }
+        },
+        "Civil Law": {
+            "subtopics": {
+                "Property Law": [
+                    "Property Transfer",
+                    "Land Dispute",
+                    "Tenancy",
+                    "Mortgage"
+                ],
+                "Contract Law": [
+                    "Breach of Contract",
+                    "Specific Performance",
+                    "Injunctions"
+                ],
+                "Family Law": [
+                    "Marriage",
+                    "Divorce",
+                    "Maintenance",
+                    "Adoption",
+                    "Guardianship",
+                    "Succession"
+                ],
+                "Tort Law": [
+                    "Defamation",
+                    "Negligence",
+                    "Nuisance",
+                    "Trespass"
+                ]
+            }
+        },
+        "Consumer Law": {
+            "subtopics": {
+                "Consumer Rights": [
+                    "Right to Safety",
+                    "Right to Information",
+                    "Right to Choose",
+                    "Right to be Heard",
+                    "Right to Redressal",
+                    "Right to Consumer Education"
+                ],
+                "Product Liability": [
+                    "Defective Goods",
+                    "Deficiency in Service",
+                    "Unfair Trade Practices",
+                    "Misleading Advertisements"
+                ]
+            }
+        }
+    }
+}

@@ -1,0 +1,50 @@
+{
+    "portals": {
+        "cybercrime": {
+            "title": "National Cyber Crime Reporting Portal",
+            "url": "https://cybercrime.gov.in/",
+            "description": "Official portal to report all types of cybercrime, including financial fraud and women/child related reports.",
+            "emergency_contact": "1930"
+        },
+        "consumer": {
+            "title": "E-Daakhil Portal",
+            "url": "https://edaakhil.nic.in/",
+            "description": "Portal for filing consumer complaints online in various Consumer Commissions across India."
+        },
+        "legal_aid": {
+            "title": "NALSA Online Application",
+            "url": "https://nalsa.gov.in/lsams",
+            "description": "Apply for free legal aid services provided by the National Legal Services Authority."
+        },
+        "women_rights": {
+            "title": "NCW Online Complaint",
+            "url": "http://ncwapps.nic.in/onlinecomplaintsv2/frmInstructions.aspx",
+            "description": "National Commission for Women portal for registering complaints related to women's rights violations.",
+            "emergency_contact": "1091"
+        },
+        "rti": {
+            "title": "RTI Online",
+            "url": "https://rtionline.gov.in/",
+            "description": "File Right to Information (RTI) applications and first appeals online with Central Government Ministries/Departments."
+        }
+    },
+    "court_services": {
+        "ecourts": {
+            "title": "eCourts Services",
+            "url": "https://ecourts.gov.in/",
+            "description": "Unified portal for tracking case status, daily orders, and judgments across District and High Courts in India."
+        },
+        "supreme_court": {
+            "title": "Supreme Court of India - Virtual Courts",
+            "url": "https://vcourts.gov.in/",
+            "description": "Access virtual court proceedings and e-filing for the Supreme Court."
+        }
+    },
+    "acts_repository": {
+        "indiacode": {
+            "title": "IndiaCode Digital Repository",
+            "url": "https://www.indiacode.nic.in/",
+            "description": "A digital repository of all Central and State Acts (Bare Acts) in India."
+        }
+    }
+}

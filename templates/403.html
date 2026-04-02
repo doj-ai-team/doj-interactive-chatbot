@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>403 Forbidden - Department of Justice Legal Assistant</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        doj: {
+                            navy: '#000080',
+                            saffron: '#FF9933',
+                            green: '#138808',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0f172a;
+        }
+
+        .glass-panel {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        }
+    </style>
+</head>
+
+<body class="text-slate-200 min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+    <!-- Background Effects -->
+    <div class="fixed inset-0 z-0 opacity-20 pointer-events-none">
+        <div class="absolute top-[20%] right-[30%] w-96 h-96 bg-red-600 rounded-full blur-[100px]"></div>
+        <div class="absolute bottom-[20%] left-[30%] w-96 h-96 bg-orange-600 rounded-full blur-[100px]"></div>
+    </div>
+
+    <div class="relative z-10 w-full max-w-md text-center">
+        <div class="glass-panel p-10 rounded-3xl">
+            <div
+                class="inline-flex items-center justify-center w-24 h-24 rounded-full bg-red-500/20 text-red-500 mb-6 border border-red-500/30">
+                <i data-lucide="shield-alert" class="w-12 h-12"></i>
+            </div>
+
+            <h1 class="text-4xl font-extrabold text-white mb-2 tracking-tight">Access Denied</h1>
+            <p class="text-red-400 font-semibold mb-4">403 Forbidden Error</p>
+
+            <p class="text-slate-400 mb-8 leading-relaxed">
+                Your current role (<strong>{{ current_user.role }}</strong>) does not have permission to access this
+                page. This area is restricted to authorized personnel.
+            </p>
+
+            <div class="space-y-4">
+                <a href="{{ url_for('index') }}"
+                    class="flex items-center justify-center w-full py-3 px-4 rounded-xl bg-gradient-to-r from-doj-navy to-indigo-700 hover:from-indigo-600 hover:to-indigo-800 text-white font-semibold transition-all">
+                    <i data-lucide="home" class="w-5 h-5 mr-2"></i> Return Home
+                </a>
+                <a href="{{ url_for('auth.logout') }}"
+                    class="flex items-center justify-center w-full py-3 px-4 rounded-xl bg-slate-800/50 hover:bg-slate-700/50 border border-slate-700 hover:border-slate-600 text-slate-300 transition-all font-medium">
+                    <i data-lucide="log-out" class="w-5 h-5 mr-2"></i> Switch Accounts
+                </a>
+            </div>
+        </div>
+
+        <div class="mt-8 opacity-50 flex items-center justify-center space-x-2 text-sm">
+            <span>⚖️</span>
+            <span>Department of Justice Security Logged the Incident</span>
+        </div>
+    </div>
+
+    <script>lucide.createIcons();</script>
+</body>
+
+</html>
